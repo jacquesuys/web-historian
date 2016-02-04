@@ -4,6 +4,8 @@ var archive = require('../helpers/archive-helpers');
 var helpers = require('./http-helpers');
 var headers = helpers.headers;
 var getAssets = helpers.serveAssets;
+var getArchives = helpers.serveArchives;
+
 // var Promise = require('bluebird');
 // require more modules/folders here!
 
@@ -63,8 +65,29 @@ exports.handleRequest = function(req, res) {
       body += chunk;
     }).on('end', function(){
       body = body.slice(4);
-      archive.isUrlInList(body, function(is){
-        if(!is){
+      archive.isUrlInList(body, function(inList){
+        if(inList){
+          archive.isUrlArchived(body, function(inArchive){
+            console.log('in arch ', inArchive);
+            if(inArchive) {
+              getArchives(res, body, function(data){
+                res.writeHead(200, headers);
+                res.end(data);
+              });
+            } else {
+              // download
+              archive.readListOfUrls(function(urls){
+                archive.downloadUrls(urls);
+              })
+              getAssets(res, '/loading.html', function(data){
+                res.writeHead(302, headers);
+                res.end(data);
+              });
+              return;
+            }
+          });
+        }
+        else{
           archive.addUrlToList(body,function(){
             getAssets(res, '/loading.html', function(data){
               res.writeHead(302, headers);
@@ -72,11 +95,6 @@ exports.handleRequest = function(req, res) {
             });
             return;
           });
-        }
-        else{
-          // html fetcher data to the screen
-          console.log('not adding anymore');
-          res.end();
         }
       });
     });

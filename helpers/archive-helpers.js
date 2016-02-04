@@ -1,7 +1,7 @@
 var fs = require('fs');
 var path = require('path');
 var _ = require('underscore');
-
+var download = require('../workers/htmlfetcher');
 /*
  * You will need to reuse the same paths many times over in the course of this sprint.
  * Consider using the `paths` object below to store frequently used file paths. This way,
@@ -50,7 +50,7 @@ exports.addUrlToList = function(url, callback) {
 exports.isUrlArchived = function(url, callback) {
   fs.readdir(exports.paths.archivedSites, function(err, content){
     if(err){ return "Error "+ err}
-    callback(_.contains(url, content));
+    callback(_.contains(content, url));
   });
 };
 
@@ -59,7 +59,9 @@ exports.downloadUrls = function(array) {
     // var htmlOfUrl = $.get();
     fs.writeFile(exports.paths.archivedSites+'/'+el, el, 'utf8', function(err){
       if(err){throw err}
-      // callback();
-    })
-  })
+      download(el, exports.paths.archivedSites+'/'+el, function(){
+        return;
+      });
+    });
+  });
 };
