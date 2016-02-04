@@ -1,5 +1,5 @@
 var fs = require('fs');
-var path = require('path');
+var $path = require('path');
 var archive = require('../helpers/archive-helpers');
 var helpers = require('./http-helpers');
 var headers = helpers.headers;
@@ -9,21 +9,29 @@ var getAssets = helpers.serveAssets;
 
 exports.handleRequest = function(req, res) {
   if(req.method === "GET"){
-      if(req.url === "/") {
 
-        var url = 'index.html';
-        var filePath = __dirname + '/public/' + url;
-        // var ext = path.extname(filePath);
+    if(req.url === "/") {
+      var url = 'index.html';
+    }
 
-        if (filePath) {
-          fs.readFile(filePath, 'utf8', function(err, data) {
-            res.writeHead(200, headers);
-            res.end(data);
-          });
-          return;
-        }
+    var filePath = __dirname + '/public/' + url;
+    var ext = $path.extname(filePath);
 
-      }
+    if(ext === '.css') {
+      headers['Content-Type'] = 'text/css';
+    }
+
+    if(ext === '.js') {
+      headers['Content-Type'] = 'application/javascript';
+    }
+
+    if (filePath) {
+      fs.readFile(filePath, 'utf8', function(err, data) {
+        res.writeHead(200, headers);
+        res.end(data);
+      });
+      return;
+    }
 
       // var filePath = __dirname + req.url;
       // console.log(filePath.extname);
