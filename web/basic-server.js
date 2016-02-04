@@ -9,10 +9,7 @@ initialize("./archives");
 var port = 8080;
 var ip = "127.0.0.1";
 
-// fs.readFile(__dirname+"/../client/index.html", function(err, html){
 var server = http.createServer(function(req, res){
-  // if(url asks for file){ return function that supplies file}
-  // else
   handler.handleRequest(req, res);
 });
 if (module.parent) {
@@ -21,4 +18,3 @@ if (module.parent) {
   server.listen(port, ip);
   console.log("Listening on http://" + ip + ":" + port);
 }
-// });

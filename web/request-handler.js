@@ -7,11 +7,22 @@ var getAssets = helpers.serveAssets;
 // var Promise = require('bluebird');
 // require more modules/folders here!
 
-exports.handleRequest = function (req, res) {
+exports.handleRequest = function(req, res) {
   if(req.method === "GET"){
-      if(req.url === "/"){
-        res.writeHead(200, headers);
-        res.end('<input');
+      if(req.url === "/") {
+
+        var url = 'index.html';
+        var filePath = __dirname + '/public/' + url;
+        // var ext = path.extname(filePath);
+
+        if (filePath) {
+          fs.readFile(filePath, 'utf8', function(err, data) {
+            res.writeHead(200, headers);
+            res.end(data);
+          });
+          return;
+        }
+
       }
 
       // var filePath = __dirname + req.url;
