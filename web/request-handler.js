@@ -2,10 +2,10 @@ var fs = require('fs');
 var path = require('path');
 var archive = require('../helpers/archive-helpers');
 var headers = require('./http-helpers').headers;
+// var Promise = require('bluebird');
 // require more modules/folders here!
 
 exports.handleRequest = function (req, res) {
-  console.log('HOST', req.url);
   if(req.method === "GET"){
       if(req.url === "/"){
         res.writeHead(200, headers);
@@ -18,27 +18,44 @@ exports.handleRequest = function (req, res) {
             // console.log('exists');
             fs.readFile(path, 'utf8', function(err, data){
               if(err){
-                return "Not Found: " + err;
+                return "File Not Found: " + err;
               } else {
                 res.writeHead(200, headers);
                 res.end(data);
                 return;
               }
-            })
-          } else {
-            // writefile
-            fs.writeFile(path, req.url, 'utf8', function(err){
-              if(err) { return err}
-              res.writeHead(200, headers);
-              res.end(req.url);
             });
           }
-        })
+        });
       } else {
       res.writeHead(404, headers);
       res.end();
+    }
+  } else if(req.method === "POST"){
+    if(req.url === "/") {
+      var body = '';
+      req.on('data', function(chunk){
+        body += chunk;
+      }).on('end', function(){
+        body = body.slice(4);
+        console.log('<------------'+body);
+        archive.isUrlInList(body,function(){
+          res.writeHead(201, headers);
+          res.end();
+        });
+      });
     }
   } else {
     res.end(archive.paths.list);
 	}
 };
+
+
+// else {
+//  // writefile
+//  fs.writeFile(path, req.url, 'utf8', function(err){
+//    if(err) { return err}
+//    res.writeHead(200, headers);
+//    res.end(req.url);
+//  });
+// }
