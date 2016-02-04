@@ -28,31 +28,39 @@ exports.readListOfUrls = function(callback) {
   fs.readFile(exports.paths.list,'utf8',function(err,content){
     if(err){
       return "Error " + err;
-    }
-    else{
+    } else {
       callback(content.split('\n'));
     }
   })
 };
 
-exports.isUrlInList = function(url) {
+exports.isUrlInList = function(url, callback) {
   exports.readListOfUrls(function(urls){
     urls = urls.join('\n');
-    console.log(urls);
-    console.log(urls.includes(url));
-    return urls.includes(url);
+    callback( _.includes(url, urls) );
   });
 };
 
-exports.addUrlToList = function(url,data) {
-    data = data.push(url).join('\n');
-    fs.writeFile(list, data, 'utf8', function(err){
-        if(err) { "File Not Written: " + err; }
-      });
+exports.addUrlToList = function(url, callback) {
+  fs.appendFile(exports.paths.list, url+'\n', 'utf8', function(err){
+    if(err) { "File Not Written: " + err; }
+    callback();
+  });
 };
 
-exports.isUrlArchived = function(url) {
+exports.isUrlArchived = function(url, callback) {
+  fs.readdir(exports.paths.archivedSites, function(err, content){
+    if(err){ return "Error "+ err}
+    callback(_.contains(url, content));
+  });
 };
 
-exports.downloadUrls = function() {
+exports.downloadUrls = function(array) {
+  _.each(array, function(el){
+    // var htmlOfUrl = $.get();
+    fs.writeFile(exports.paths.archivedSites+'/'+el, el, 'utf8', function(err){
+      if(err){throw err}
+      // callback();
+    })
+  })
 };

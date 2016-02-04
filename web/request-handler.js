@@ -38,9 +38,8 @@ exports.handleRequest = function (req, res) {
         body += chunk;
       }).on('end', function(){
         body = body.slice(4);
-        console.log('<------------'+body);
-        archive.isUrlInList(body,function(){
-          res.writeHead(201, headers);
+        archive.addUrlToList(body,function(){
+          res.writeHead(302, headers);
           res.end();
         });
       });
@@ -49,13 +48,3 @@ exports.handleRequest = function (req, res) {
     res.end(archive.paths.list);
 	}
 };
-
-
-// else {
-//  // writefile
-//  fs.writeFile(path, req.url, 'utf8', function(err){
-//    if(err) { return err}
-//    res.writeHead(200, headers);
-//    res.end(req.url);
-//  });
-// }
