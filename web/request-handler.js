@@ -1,7 +1,9 @@
 var fs = require('fs');
 var path = require('path');
 var archive = require('../helpers/archive-helpers');
-var headers = require('./http-helpers').headers;
+var helpers = require('./http-helpers');
+var headers = helpers.headers;
+var getAssets = helpers.serveAssets;
 // var Promise = require('bluebird');
 // require more modules/folders here!
 
@@ -11,6 +13,19 @@ exports.handleRequest = function (req, res) {
         res.writeHead(200, headers);
         res.end('<input');
       }
+
+      // var filePath = __dirname + req.url;
+      // console.log(filePath.extname);
+      // var extname = path.extname(filePath);
+      //
+      // if(extname === '.html') {
+      //   console.log('some html here');
+      // }
+      //
+      // if(extname === '.css') {
+      //   console.log('some css here');
+      // }
+
       if(req.url === '/www.google.com') {
         var path = archive.paths.archivedSites + req.url;
         fs.exists(path, function(exists){
