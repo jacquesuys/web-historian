@@ -11,73 +11,75 @@ exports.handleRequest = function(req, res) {
   if(req.method === "GET"){
 
     if(req.url === "/") {
-      var url = 'index.html';
-    }
-
-    var filePath = __dirname + '/public/' + url;
-    var ext = $path.extname(filePath);
-
-    if(ext === '.css') {
-      headers['Content-Type'] = 'text/css';
-    }
-
-    if(ext === '.js') {
-      headers['Content-Type'] = 'application/javascript';
-    }
-
-    if (filePath) {
-      fs.readFile(filePath, 'utf8', function(err, data) {
+      // var url = 'index.html';
+      getAssets(res, '/index.html', function(data){
         res.writeHead(200, headers);
         res.end(data);
       });
       return;
     }
-
-      // var filePath = __dirname + req.url;
-      // console.log(filePath.extname);
-      // var extname = path.extname(filePath);
-      //
-      // if(extname === '.html') {
-      //   console.log('some html here');
-      // }
-      //
-      // if(extname === '.css') {
-      //   console.log('some css here');
-      // }
-
-      if(req.url === '/www.google.com') {
-        var path = archive.paths.archivedSites + req.url;
-        fs.exists(path, function(exists){
-          if (exists) {
-            // console.log('exists');
-            fs.readFile(path, 'utf8', function(err, data){
-              if(err){
-                return "File Not Found: " + err;
-              } else {
-                res.writeHead(200, headers);
-                res.end(data);
-                return;
-              }
-            });
-          }
-        });
-      } else {
+    //
+    // var filePath = __dirname + '/public/' + url;
+    // var ext = $path.extname(filePath);
+    //
+    // if(ext === '.css') {
+    //   headers['Content-Type'] = 'text/css';
+    // }
+    //
+    // if(ext === '.js') {
+    //   headers['Content-Type'] = 'application/javascript';
+    // }
+    //
+    // if (filePath) {
+    //   fs.readFile(filePath, 'utf8', function(err, data) {
+    //     res.writeHead(200, headers);
+    //     res.end(data);
+    //   });
+    //   return;
+    // }
+    if(req.url === '/www.google.com') {
+      var path = archive.paths.archivedSites + req.url;
+      fs.exists(path, function(exists){
+        if (exists) {
+          // console.log('exists');
+          fs.readFile(path, 'utf8', function(err, data){
+            if(err){
+              return "File Not Found: " + err;
+            } else {
+              res.writeHead(200, headers);
+              res.end(data);
+              return;
+            }
+          });
+        }
+      });
+    } else {
       res.writeHead(404, headers);
       res.end();
     }
   } else if(req.method === "POST"){
-    if(req.url === "/") {
-      var body = '';
-      req.on('data', function(chunk){
-        body += chunk;
-      }).on('end', function(){
-        body = body.slice(4);
-        archive.addUrlToList(body,function(){
-          res.writeHead(302, headers);
+    var body = '';
+    req.on('data', function(chunk){
+      body += chunk;
+    }).on('end', function(){
+      body = body.slice(4);
+      archive.isUrlInList(body, function(is){
+        if(!is){
+          archive.addUrlToList(body,function(){
+            getAssets(res, '/loading.html', function(data){
+              res.writeHead(302, headers);
+              res.end(data);
+            });
+            return;
+          });
+        }
+        else{
+          // html fetcher data to the screen
+          console.log('not adding anymore');
           res.end();
-        });
+        }
       });
-    }
+    });
   } else {
     res.end(archive.paths.list);
 	}

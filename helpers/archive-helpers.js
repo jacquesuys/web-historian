@@ -36,8 +36,7 @@ exports.readListOfUrls = function(callback) {
 
 exports.isUrlInList = function(url, callback) {
   exports.readListOfUrls(function(urls){
-    urls = urls.join('\n');
-    callback( _.includes(url, urls) );
+    callback( _.contains(urls, url) );
   });
 };
 
