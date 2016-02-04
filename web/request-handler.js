@@ -13,7 +13,6 @@ exports.handleRequest = function(req, res) {
   if(req.method === "GET"){
 
     if(req.url === "/") {
-      // var url = 'index.html';
       getAssets(res, '/index.html', function(data){
         res.writeHead(200, headers);
         res.end(data);
@@ -43,7 +42,6 @@ exports.handleRequest = function(req, res) {
       var path = archive.paths.archivedSites + req.url;
       fs.exists(path, function(exists){
         if (exists) {
-          // console.log('exists');
           fs.readFile(path, 'utf8', function(err, data){
             if(err){
               return "File Not Found: " + err;
@@ -68,32 +66,33 @@ exports.handleRequest = function(req, res) {
       archive.isUrlInList(body, function(inList){
         if(inList){
           archive.isUrlArchived(body, function(inArchive){
-            console.log('in arch ', inArchive);
             if(inArchive) {
               getArchives(res, body, function(data){
                 res.writeHead(200, headers);
                 res.end(data);
               });
             } else {
-              // download
               archive.readListOfUrls(function(urls){
                 archive.downloadUrls(urls);
+                getAssets(res, '/loading.html', function(data){
+                  res.writeHead(302, headers);
+                  res.end(data);
+                });
+                return;
               })
-              getAssets(res, '/loading.html', function(data){
-                res.writeHead(302, headers);
-                res.end(data);
-              });
-              return;
             }
           });
         }
         else{
           archive.addUrlToList(body,function(){
-            getAssets(res, '/loading.html', function(data){
-              res.writeHead(302, headers);
-              res.end(data);
+            archive.readListOfUrls(function(urls){
+              archive.downloadUrls(urls);
+              getAssets(res, '/loading.html', function(data){
+                res.writeHead(302, headers);
+                res.end(data);
+              });
+              return;
             });
-            return;
           });
         }
       });
